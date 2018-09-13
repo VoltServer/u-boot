@@ -23,7 +23,7 @@
 #undef CONFIG_SPL_I2C_SUPPORT
 #undef CONFIG_SPL_OS_BOOT
 #define CONFIG_HW_WATCHDOG
-#define CONFIG_OMAP_WATCHDOG 
+#define CONFIG_OMAP_WATCHDOG
 
 #define MACH_TYPE_TIAM335EVM		3589	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_TIAM335EVM
@@ -88,7 +88,7 @@
 	"bootpart=0:1\0" \
 	"bootdir=/boot\0" \
 	"bootfile=zImage\0" \
-	"fdtfile=undefined\0" \
+	"fdtfile=olimex-am335x-som.dtb\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
 	"mmcdev=0\0" \
@@ -102,7 +102,7 @@
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
 	"bootenv=uEnv.txt\0" \
-	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"loadbootenv=load mmc ${bootpart} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
@@ -121,20 +121,24 @@
 		"else " \
 			"bootz; " \
 		"fi;\0" \
-	"mmcboot=mmc dev ${mmcdev}; " \
+	"mmcboot=mmc dev ${mmcdev};" \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${mmcdev};" \
-			"if run loadbootenv; then " \
-				"echo Loaded environment from ${bootenv};" \
-				"run importbootenv;" \
-			"fi;" \
-			"if test -n $uenvcmd; then " \
-				"echo Running uenvcmd ...;" \
-				"run uenvcmd;" \
-			"fi;" \
-			"if run loadimage; then " \
-				"run mmcloados;" \
-			"fi;" \
+			"for part in 1 2 3 4 5; do " \
+				"setenv bootpart ${mmcdev}:${part};" \
+				"echo Trying to boot from ${bootpart};" \
+				"if run loadbootenv; then " \
+					"echo Loaded environment from ${bootenv};" \
+					"run importbootenv;" \
+				"fi;" \
+				"if test -n $uenvcmd; then " \
+					"echo Running uenvcmd ...;" \
+					"run uenvcmd;" \
+				"fi;" \
+				"if run loadimage; then " \
+					"run mmcloados;" \
+				"fi;" \
+			"done;" \
 		"fi;\0" \
 	NANDARGS
 	/*DFUARGS*/
