@@ -176,6 +176,13 @@ config TARGET_ETAMIN
 	select DM_SERIAL
 	imply CMD_DM
 
+config TARGET_AM335X_OLIMEX_SOM
+	bool "Support am335x_olimex_som"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+  imply CMD_DM
+
 config TARGET_PCM051
 	bool "Support pcm051"
 	select DM
